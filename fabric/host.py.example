@@ -18,5 +18,5 @@ env.password = 'password'
 #ssh指定主机的登录密码
 env.passwords = {
                     'root@ip1:port' : 'password',
-		     'root@ip2:port' : 'password',
+		    'root@ip2:port' : 'password',
 		}
