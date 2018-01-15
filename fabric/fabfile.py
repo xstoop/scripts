@@ -14,29 +14,41 @@ if len(env.hosts)==0 and os.path.exists('host.py'):
 env.eagerly_disconnect = True #在每个独立任务完成后关闭连接
 env.skip_bad_hosts = True #跳过SSH连接失败的主机而不是exit
 
+#发布测试版本
+def deploy_test():
+    __deploy('test')
+
+#发布线上正式版本
+def deploy_product():
+    __deploy('latest')
+
+#回滚到上一版本：目前只有保留正式版本的上一个版本
+def deploy_rollback():
+    __deploy('older')
+
 #拉取镜像并运行容器
-@parallel(pool_size=5)
-def deploy():
+def __deploy(tag):
     start_docker()
-    #with hide('running', 'stdout', 'stderr'):
-    #pull镜像
-    print('%(host)s pull mirror' % env)
-    run('docker login --username=username  --password=password --email=email your-registry-hub.com')
-    #with show('running', 'stdout', 'stderr'):
-    run('docker pull your-registry-hub.com/project:latest')
-    print('%(host)s pull mirror over' % env)
 
-    #停掉并删除旧容器
-    print('%(host)s stop and remove old project container' % env)
-    with settings(warn_only=True):
-        stop = run('docker stop project')
-    if stop.failed == 0:
-        run('docker rm project')
-    print('%(host)s stop and remove old project container over' % env)
+    with hide('running', 'stdout'):
+        #pull镜像
+        print('%(host)s pull mirror' % env)
+        run('docker login --username=username  --password=password --email=email your-registry-hub.com')
+        #with show('running', 'stdout', 'stderr'):
+        run('docker pull your-registry-hub.com/project:latest')
+        print('%(host)s pull mirror over' % env)
 
-    #启动新容器
-    print('%(host)s create new project container' % env)
-    run('docker run --name project -it -d -p 8003:80 --restart=always your-registry-hub.com/project:latest')
+        #停掉并删除旧容器
+        print('%(host)s stop and remove old project container' % env)
+        with settings(warn_only=True):
+            stop = run('docker stop project')
+        if stop.failed == 0:
+            run('docker rm project')
+        print('%(host)s stop and remove old project container over' % env)
+
+        #启动新容器
+        print('%(host)s create new project container' % env)
+        run('docker run --name project -it -d -p 8003:80 --restart=always your-registry-hub.com/project:latest')
     print('%(host)s create new project container over' % env)
 
 #查看project status状态

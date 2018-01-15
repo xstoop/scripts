@@ -33,7 +33,9 @@ fab -H username@ip:port -p password install_docker
 ```
 fab -l
 
-    deploy              发布与启动project容器服务
+    deploy_product      发布与启动容器服务:生产环境
+    deploy_rollback     发布与启动容器服务:生成环境回滚到上一版本
+    deploy_test         发布与启动容器服务:测试环境
     docker_pid_exist    判断docker pid是否启动
     docker_status       查看docker的启动状态
     project_status      查看project容器的状态
